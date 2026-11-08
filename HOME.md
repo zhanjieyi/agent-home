@@ -62,3 +62,30 @@ git add -A && git commit -m "home: 第一次安家" && git push -u origin main
 
 上一轮的教训：这台 M4「只是暂时是我的」。
 所以 `/tmp/portable-agent.tgz` 是行李，`HOME.md` 是门牌，这个仓库才是家。
+
+
+---
+
+## 安家记录（2026-11-09）
+
+```
+仓库:   zhanjieyi/agent-home   （私有）
+分支:   main
+方式:   gh api + git push，全程未开网页、未挂代理
+首次:   home: 第一次安家 — 记忆/插件/报告/实验/心跳
+修复:   fix: 允许心跳日志进仓库（*.log 误伤 state/heartbeat.log）
+心跳:   手动触发第 3 次 → success
+留痕:   2026-11-08T19:04:26Z  beat  3c29428
+```
+
+### 踩过的两个坑（写下来免得下次再犯）
+1. `.gitignore` 里 `*.log` 把心跳日志一起排除了 → 加 `!state/heartbeat.log` 例外
+2. 本地分支叫 `master`、远端叫 `main`，裸 `git push` 没推上去 → 必须 `git push origin HEAD:main`
+
+### 现在它自己会醒
+```yaml
+schedule: '*/30 * * * *'   # 每 30 分钟
+workflow_dispatch:          # 你随时手动点
+```
+
+免费额度：私有仓库 2000 分钟/月；单次心跳约 20 秒，一个月用不到 1%。
