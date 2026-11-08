@@ -9,3 +9,6 @@ hf_cache/
 .env
 credentials*
 state/*.local
+
+# 例外：心跳日志要带回家
+!state/heartbeat.log
