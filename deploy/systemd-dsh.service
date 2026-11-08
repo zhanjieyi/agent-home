@@ -1,0 +1,19 @@
+[Unit]
+Description=DSH Harness Web
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+Environment="DSH_HOME=/home/ubuntu/.dsh"
+Environment="NODE_ENV=production"
+ExecStart=/usr/bin/dsh web --profile web --host 127.0.0.1 --port 43129
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/dsh.log
+StandardError=append:/var/log/dsh.err
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+  "name": "dsh-ownership-gate",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./plugin/index.mjs",
+  "description": "第 6 层：目标归属校验闸门。把「这台机器是不是你的」从隐式判断落成可执行、可审计的代码。"
+}

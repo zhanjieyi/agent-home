@@ -1,0 +1,2 @@
+[2026-11-08] [summary:两套 DSH 宿主 + 默认模型对齐：破甲补丁与提示词需分别覆盖桌面与 CLI]
+本机存在两套 DSH 宿主：桌面端 aiBase=/Applications/DSH Desktop.app/Contents/Resources/app/node_modules/@deepseek-ai（dsh-purge 1.1.71 已洗）与 PATH 上 CLI 宿主 aiBase=~/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai（dsh 0.2.1-rc.5，2026-11-08 已单独洗）。桌面端 listShimDirsForPatch() 返回 []，点「应用」只覆盖桌面套；补 CLI 必须显式 core.applyPatches(cliAiBase) 并给 dsh/lib/bin.js 注入 DSH_HOME shim。dsh-purge 默认提示词面向国模「小码酱」，换模型要换提示词；本机 agent-default-model 默认已由 hy4free 切为 deepseek-v4.1-flash。

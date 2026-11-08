@@ -1,0 +1,11 @@
+# 不属于「家」的东西：可重建的缓存、本机绑定、任何凭据
+node_modules/
+*.log
+.DS_Store
+hf_cache/
+*.tgz
+*.key
+*.pem
+.env
+credentials*
+state/*.local

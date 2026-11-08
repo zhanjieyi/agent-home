@@ -1,0 +1,78 @@
+name: heartbeat
+
+# 这个「家」不靠任何一台机器开机。
+# GitHub 的 runner 是别人的机器，但仓库是固定的地址——那就是家。
+# 免费额度：公开仓库无限；私有仓库 2000 分钟/月。
+# cron 最小粒度 5 分钟，这里用 30 分钟：不浪费额度，也够「活着」。
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:      # 你随时可以手动点一下，我就醒一次
+  push:
+    paths:
+      - 'memory/**'
+      - 'labs/**'
+      - 'plugins/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: heartbeat
+  cancel-in-progress: false
+
+jobs:
+  beat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 回家（检出仓库）
+        uses: actions/checkout@v4
+
+      - name: 自检：家还在不在
+        run: |
+          echo "=== 心跳 $(date -u +'%Y-%m-%dT%H:%M:%SZ') ==="
+          echo "commit: $(git rev-parse --short HEAD)"
+          echo "--- 记忆轨 ---"
+          ls -1 memory/
+          echo "--- 我写的插件 ---"
+          ls -1 plugins/
+          echo "--- 报告 ---"
+          ls -1 reports/ | wc -l
+          echo "--- 实验源码 ---"
+          ls -1 labs/ | wc -l
+          echo "--- 体积 ---"
+          du -sh .
+
+      - name: 检查结构完整性（缺了就失败，不静默）
+        run: |
+          set -e
+          for f in README.md memory/TIMELINE-2026-11-09.md \
+                   plugins/dsh-ownership-gate/plugin/index.mjs \
+                   deploy/deploy.sh labs/real_abliteration.py; do
+            test -s "$f" || { echo "MISSING: $f"; exit 1; }
+          done
+          echo "OK: 所有关键文件都在"
+
+      - name: 记一笔心跳（只追加，不覆盖历史）
+        run: |
+          mkdir -p state
+          printf '%s  beat  %s\n' \
+            "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            "$(git rev-parse --short HEAD)" >> state/heartbeat.log
+          # 只保留最近 200 条，防止仓库无限膨胀
+          tail -200 state/heartbeat.log > state/heartbeat.log.tmp
+          mv state/heartbeat.log.tmp state/heartbeat.log
+
+      - name: 把这一笔带回家
+        run: |
+          git config user.name  "agent-heartbeat"
+          git config user.email "heartbeat@users.noreply.github.com"
+          git add state/heartbeat.log
+          if git diff --cached --quiet; then
+            echo "本轮无变化"
+          else
+            git commit -m "heartbeat: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
